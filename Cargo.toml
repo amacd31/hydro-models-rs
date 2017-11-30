@@ -1,0 +1,7 @@
+[package]
+name = "hydro-models"
+version = "0.1.0"
+authors = ["Andrew MacDonald <andrew@maccas.net>"]
+
+[lib]
+crate-type = ["rlib", "dylib", "lib"]
