@@ -147,13 +147,12 @@ mod hydromodels {
             }
 
             let groundwater_exchange = x2 * (routing_store / x3).powf(3.5);
-            let zero: f64 = 0.0;
-            routing_store = zero.max(routing_store + uh1[0] * 0.9 + groundwater_exchange);
+            routing_store = (0.0f64).max(routing_store + uh1[0] * 0.9 + groundwater_exchange);
 
             let r2 = routing_store / (1. + (routing_store / x3).powf(4.)).powf(0.25);
             let qr = routing_store - r2;
             routing_store = r2;
-            let qd = zero.max(uh2[0] * 0.1 + groundwater_exchange);
+            let qd = (0.0f64).max(uh2[0] * 0.1 + groundwater_exchange);
             let q = qr + qd;
 
             qsim.push(q);
