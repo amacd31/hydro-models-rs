@@ -133,17 +133,15 @@ mod hydromodels {
             for i in 0..(uh1.len() - 1) {
                 uh1[i] = uh1[i + 1] + uh1_ordinates[i] * routing_pattern;
             }
-            {
-                let last = uh1.len() - 1;
-                uh1[last] = uh1_ordinates[last] * routing_pattern;
+            if let (Some(last_uh1), Some(last_ordinate)) = (uh1.last_mut(), uh1_ordinates.last()) {
+                *last_uh1 = *last_ordinate * routing_pattern;
             }
 
             for j in 0..(uh2.len() - 1) {
                 uh2[j] = uh2[j + 1] + uh2_ordinates[j] * routing_pattern
             }
-            {
-                let last = uh2.len() - 1;
-                uh2[last] = uh2_ordinates[last] * routing_pattern;
+            if let (Some(last_uh2), Some(last_ordinate)) = (uh2.last_mut(), uh2_ordinates.last()) {
+                *last_uh2 = *last_ordinate * routing_pattern;
             }
 
             let groundwater_exchange = x2 * (routing_store / x3).powf(3.5);
