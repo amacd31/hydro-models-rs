@@ -42,7 +42,7 @@ pub mod hydromodels {
 
     :return: Vector of simulated streamflow.
     */
-    pub fn gr4j(precip: &[f64], potential_evap: &[f64], params: HashMap<&str, f64>) -> Vec<f64> {
+    pub fn gr4j(precip: &[f64], potential_evap: &[f64], params: HashMap<&str, f64>, states: Option<HashMap<&str, f64>>) -> Vec<f64> {
         let mut qsim: Vec<f64> = Vec::new();
 
         let x1 = params["X1"];
@@ -85,11 +85,17 @@ pub mod hydromodels {
                 s_curves2(t as f64 - 1., x4);
         }
 
-        //production_store = states.get('production_store', 0) # S
-        //routing_store = states.get('routing_store', 0) # R
-
-        let mut production_store = 0.; // S
-        let mut routing_store = 0.; // R
+        let mut production_store; // S
+        let mut routing_store; // R
+        if states.is_some() {
+            let states_hash = states.unwrap();
+            production_store = *states_hash.get("production_store").unwrap_or(&0.); // S
+            routing_store = *states_hash.get("routing_store").unwrap_or(&0.); // R
+        }
+        else {
+            production_store = 0.; // S
+            routing_store = 0.; // R
+        }
 
         for (p, e) in precip.iter().zip(potential_evap) {
             let net_evap;
@@ -181,8 +187,7 @@ mod tests {
         expected.push(11.246676991863168);
         expected.push(13.90322269162079);
 
-        let result =
-            hydromodels::gr4j(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5], params);
+        let result = hydromodels::gr4j(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5], params, None);
 
         assert_eq!(result, expected);
     }
@@ -205,7 +210,34 @@ mod tests {
         expected.push(20.992238476264593);
 
         let result =
-            hydromodels::gr4j(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5], params);
+            hydromodels::gr4j(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5], params, None);
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn gr4j_set_production_store() {
+        let mut params = HashMap::new();
+
+        params.insert("X1", 10.);
+        params.insert("X2", 5.);
+        params.insert("X3", 4.);
+        params.insert("X4", 1.);
+
+        let mut states = HashMap::new();
+
+        states.insert("production_store", 10.);
+
+        let mut expected: Vec<f64> = Vec::new();
+
+        expected.push(5.1602235324393675);
+        expected.push(10.091188499285725);
+        expected.push(9.82974398339987);
+        expected.push(136.95699908376093);
+        expected.push(21.019904684254975);
+
+        let result =
+            hydromodels::gr4j(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5], params, Some(states));
 
         assert_eq!(result, expected);
     }
