@@ -1,4 +1,4 @@
-mod hydromodels {
+pub mod hydromodels {
     use std::collections::HashMap;
 
     /*
