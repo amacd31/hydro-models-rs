@@ -91,8 +91,8 @@ pub mod hydromodels {
             let states_hash = states.unwrap();
             production_store = *states_hash.get("production_store").unwrap_or(&0.); // S
             routing_store = *states_hash.get("routing_store").unwrap_or(&0.); // R
-        }
-        else {
+
+        } else {
             production_store = 0.; // S
             routing_store = 0.; // R
         }
