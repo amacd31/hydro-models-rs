@@ -42,7 +42,13 @@ pub mod hydromodels {
 
     :return: Vector of simulated streamflow.
     */
-    pub fn gr4j(precip: &[f64], potential_evap: &[f64], params: HashMap<&str, f64>, states: Option<HashMap<&str, f64>>) -> Vec<f64> {
+    pub fn gr4j(
+        precip: &[f64],
+        potential_evap: &[f64],
+        params: HashMap<&str, f64>,
+        states: Option<HashMap<&str, f64>>,
+        unithydrograph_states: Option<HashMap<&str, Vec<f64>>>,
+    ) -> Vec<f64> {
         let mut qsim: Vec<f64> = Vec::new();
 
         let x1 = params["X1"];
@@ -61,18 +67,6 @@ pub mod hydromodels {
         let mut uh2_ordinates: Vec<f64> = Vec::with_capacity(n_uh2 as usize);
         for _i in 0..n_uh2 {
             uh2_ordinates.push(0.);
-        }
-
-        //UH1 = states.get('UH1', [0] * n_uh1)
-        let mut uh1: Vec<f64> = Vec::with_capacity(n_uh1 as usize);
-        for _i in 0..n_uh1 {
-            uh1.push(0.);
-        }
-
-        //UH2 = states.get('UH2', [0] * n_uh2)
-        let mut uh2: Vec<f64> = Vec::with_capacity(n_uh2 as usize);
-        for _i in 0..n_uh2 {
-            uh2.push(0.);
         }
 
         for t in 1..(n_uh1 + 1) {
@@ -96,6 +90,36 @@ pub mod hydromodels {
             production_store = 0.; // S
             routing_store = 0.; // R
         }
+
+        let mut uh1: Vec<f64> = Vec::with_capacity(n_uh1 as usize);
+        let mut uh2: Vec<f64> = Vec::with_capacity(n_uh2 as usize);
+        if unithydrograph_states.is_some() {
+            let uh_states_hash = unithydrograph_states.unwrap();
+            if uh_states_hash.get("uh1").is_some() {
+                uh1.clone_from(&*uh_states_hash.get("uh1").unwrap());
+            } else {
+                for _i in 0..n_uh1 {
+                    uh1.push(0.);
+                }
+            }
+
+            if uh_states_hash.get("uh2").is_some() {
+                uh2.clone_from(&*uh_states_hash.get("uh2").unwrap());
+            } else {
+                for _i in 0..n_uh2 {
+                    uh2.push(0.);
+                }
+            }
+        } else {
+            for _i in 0..n_uh1 {
+                uh1.push(0.);
+            }
+
+            for _i in 0..n_uh2 {
+                uh2.push(0.);
+            }
+        }
+
 
         for (p, e) in precip.iter().zip(potential_evap) {
             let net_evap;
@@ -187,7 +211,13 @@ mod tests {
         expected.push(11.246676991863168);
         expected.push(13.90322269162079);
 
-        let result = hydromodels::gr4j(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5], params, None);
+        let result = hydromodels::gr4j(
+            &[10., 2., 3., 4., 5.],
+            &[0.5, 0.5, 0.5, 0.5, 0.5],
+            params,
+            None,
+            None,
+        );
 
         assert_eq!(result, expected);
     }
@@ -209,8 +239,13 @@ mod tests {
         expected.push(128.2406932741725);
         expected.push(20.992238476264593);
 
-        let result =
-            hydromodels::gr4j(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5], params, None);
+        let result = hydromodels::gr4j(
+            &[10., 2., 3., 150., 5.],
+            &[0.5, 14., 0.5, 10., 0.5],
+            params,
+            None,
+            None,
+        );
 
         assert_eq!(result, expected);
     }
@@ -236,8 +271,92 @@ mod tests {
         expected.push(136.95699908376093);
         expected.push(21.019904684254975);
 
-        let result =
-            hydromodels::gr4j(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5], params, Some(states));
+        let result = hydromodels::gr4j(
+            &[10., 2., 3., 150., 5.],
+            &[0.5, 14., 0.5, 10., 0.5],
+            params,
+            Some(states),
+            None,
+        );
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn gr4j_set_unit_hydrographs() {
+        let mut params = HashMap::new();
+
+        params.insert("X1", 10.);
+        params.insert("X2", 5.);
+        params.insert("X3", 4.);
+        params.insert("X4", 2.);
+
+        let mut states = HashMap::new();
+
+        states.insert("production_store", 10.);
+
+        let mut expected: Vec<f64> = Vec::new();
+
+        expected.push(7.031781387527497);
+        expected.push(15.758863927257103);
+        expected.push(10.450019503728232);
+        expected.push(32.38841274927161);
+        expected.push(115.58026737087125);
+
+        let mut unit_hydrographs = HashMap::new();
+        unit_hydrographs.insert("uh1", vec![111.13119599074196, 3.7349877368581]);
+        unit_hydrographs.insert(
+            "uh2",
+            vec![
+                55.65159496199312,
+                57.05053793090891,
+                13.713382653511243,
+                0.40102046754686754,
+            ],
+        );
+
+        let result = hydromodels::gr4j(
+            &[10., 2., 3., 150., 5.],
+            &[0.5, 14., 0.5, 10., 0.5],
+            params,
+            Some(states),
+            Some(unit_hydrographs),
+        );
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn gr4j_set_unit_hydrograph_1() {
+        let mut params = HashMap::new();
+
+        params.insert("X1", 10.);
+        params.insert("X2", 5.);
+        params.insert("X3", 4.);
+        params.insert("X4", 2.);
+
+        let mut states = HashMap::new();
+
+        states.insert("production_store", 10.);
+
+        let mut expected: Vec<f64> = Vec::new();
+
+        expected.push(1.326727594436605);
+        expected.push(14.387525661905979);
+        expected.push(10.409917456973545);
+        expected.push(32.38841274927161);
+        expected.push(115.58026737087125);
+
+        let mut unit_hydrographs = HashMap::new();
+        unit_hydrographs.insert("uh1", vec![111.13119599074196, 3.7349877368581]);
+
+        let result = hydromodels::gr4j(
+            &[10., 2., 3., 150., 5.],
+            &[0.5, 14., 0.5, 10., 0.5],
+            params,
+            Some(states),
+            Some(unit_hydrographs),
+        );
 
         assert_eq!(result, expected);
     }
