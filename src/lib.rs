@@ -183,12 +183,12 @@ pub mod hydromodels {
             self.x3 = params["X3"];
             self.x4 = params["X4"];
 
-            if production_store.is_some() {
-                self.production_store = production_store.unwrap();
+            if let Some(ps) = production_store {
+                self.production_store = ps;
             }
 
-            if routing_store.is_some() {
-                self.routing_store = routing_store.unwrap();
+            if let Some(rs) = routing_store {
+                self.routing_store = rs;
             }
 
             let n_uh1 = self.x4.ceil() as usize;
@@ -200,12 +200,12 @@ pub mod hydromodels {
 
             if unit_hydrographs.is_some() {
                 let unit_hydrographs = unit_hydrographs.unwrap();
-                if unit_hydrographs.get("uh1").is_some() {
-                    self.uh1.clone_from(&*unit_hydrographs.get("uh1").unwrap());
+                if let Some(uh1) = unit_hydrographs.get("uh1") {
+                    self.uh1.clone_from(&*uh1);
                 }
 
-                if unit_hydrographs.get("uh2").is_some() {
-                    self.uh2.clone_from(&*unit_hydrographs.get("uh2").unwrap());
+                if let Some(uh2) = unit_hydrographs.get("uh2") {
+                    self.uh2.clone_from(&*uh2);
                 }
             }
         }
