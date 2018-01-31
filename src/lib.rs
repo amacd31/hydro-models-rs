@@ -198,8 +198,7 @@ pub mod hydromodels {
             self.uh1 = vec![0.; n_uh1];
             self.uh2 = vec![0.; n_uh2];
 
-            if unit_hydrographs.is_some() {
-                let unit_hydrographs = unit_hydrographs.unwrap();
+            if let Some(unit_hydrographs) = unit_hydrographs {
                 if let Some(uh1) = unit_hydrographs.get("uh1") {
                     self.uh1.clone_from(&*uh1);
                 }
