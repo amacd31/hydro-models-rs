@@ -83,15 +83,8 @@ pub mod hydromodels {
             let n_uh1 = self.x4.ceil() as i32;
             let n_uh2 = (2.0 * self.x4).ceil() as i32;
 
-            let mut uh1_ordinates: Vec<f64> = Vec::with_capacity(n_uh1 as usize);
-            for _i in 0..n_uh1 {
-                uh1_ordinates.push(0.);
-            }
-
-            let mut uh2_ordinates: Vec<f64> = Vec::with_capacity(n_uh2 as usize);
-            for _i in 0..n_uh2 {
-                uh2_ordinates.push(0.);
-            }
+            let mut uh1_ordinates = vec![0.; n_uh1 as usize];
+            let mut uh2_ordinates = vec![0.; n_uh2 as usize];
 
             for t in 1..(n_uh1 + 1) {
                 uh1_ordinates[(t - 1) as usize] = s_curves1(t as f64, self.x4) -
@@ -224,12 +217,13 @@ mod tests {
         params.insert("X3", 4.);
         params.insert("X4", 1.);
 
-        let mut expected: Vec<f64> = Vec::new();
-        expected.push(0.13030636843636356);
-        expected.push(0.7348755690383941);
-        expected.push(3.8482364547176102);
-        expected.push(11.246676991863168);
-        expected.push(13.90322269162079);
+        let expected = vec![
+            0.13030636843636356,
+            0.7348755690383941,
+            3.8482364547176102,
+            11.246676991863168,
+            13.90322269162079,
+        ];
 
         let mut gr4j = hydromodels::GR4JModel {
             .. Default::default()
@@ -253,13 +247,13 @@ mod tests {
         params.insert("X3", 4.);
         params.insert("X4", 1.);
 
-        let mut expected: Vec<f64> = Vec::new();
-
-        expected.push(0.13030636843636356);
-        expected.push(0.5196067786804051);
-        expected.push(0.7978026532390882);
-        expected.push(128.2406932741725);
-        expected.push(20.992238476264593);
+        let expected = vec![
+            0.13030636843636356,
+            0.5196067786804051,
+            0.7978026532390882,
+            128.2406932741725,
+            20.992238476264593,
+        ];
 
         let mut gr4j = hydromodels::GR4JModel {
             .. Default::default()
@@ -287,13 +281,13 @@ mod tests {
 
         states.insert("production_store", 10.);
 
-        let mut expected: Vec<f64> = Vec::new();
-
-        expected.push(5.1602235324393675);
-        expected.push(10.091188499285725);
-        expected.push(9.82974398339987);
-        expected.push(136.95699908376093);
-        expected.push(21.019904684254975);
+        let expected = vec![
+            5.1602235324393675,
+            10.091188499285725,
+            9.82974398339987,
+            136.95699908376093,
+            21.019904684254975,
+        ];
 
         let mut gr4j = hydromodels::GR4JModel {
             .. Default::default()
@@ -321,13 +315,13 @@ mod tests {
 
         states.insert("production_store", 10.);
 
-        let mut expected: Vec<f64> = Vec::new();
-
-        expected.push(7.031781387527497);
-        expected.push(15.758863927257103);
-        expected.push(10.450019503728232);
-        expected.push(32.38841274927161);
-        expected.push(115.58026737087125);
+        let expected = vec![
+            7.031781387527497,
+            15.758863927257103,
+            10.450019503728232,
+            32.38841274927161,
+            115.58026737087125,
+        ];
 
         let mut unit_hydrographs = HashMap::new();
         unit_hydrographs.insert("uh1", vec![111.13119599074196, 3.7349877368581]);
@@ -367,13 +361,13 @@ mod tests {
 
         states.insert("production_store", 10.);
 
-        let mut expected: Vec<f64> = Vec::new();
-
-        expected.push(1.326727594436605);
-        expected.push(14.387525661905979);
-        expected.push(10.409917456973545);
-        expected.push(32.38841274927161);
-        expected.push(115.58026737087125);
+        let expected = vec![
+            1.326727594436605,
+            14.387525661905979,
+            10.409917456973545,
+            32.38841274927161,
+            115.58026737087125,
+        ];
 
         let mut unit_hydrographs = HashMap::new();
         unit_hydrographs.insert("uh1", vec![111.13119599074196, 3.7349877368581]);
