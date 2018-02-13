@@ -102,10 +102,7 @@ pub mod hydromodels {
                 let reservoir_production;
                 if p > e {
                     net_evap = 0.;
-                    let mut scaled_net_precip = (p - e) / self.x1;
-                    if scaled_net_precip > 13. {
-                        scaled_net_precip = 13.;
-                    }
+                    let scaled_net_precip = (13.0f64).min((p - e) / self.x1);
                     let tanh_scaled_net_precip = scaled_net_precip.tanh();
                     reservoir_production = (self.x1 *
                                                 (1. - (self.production_store / self.x1).powf(2.)) *
@@ -114,10 +111,7 @@ pub mod hydromodels {
 
                     routing_pattern = p - e - reservoir_production;
                 } else {
-                    let mut scaled_net_evap = (e - p) / self.x1;
-                    if scaled_net_evap > 13. {
-                        scaled_net_evap = 13.;
-                    }
+                    let scaled_net_evap = (13.0f64).min((e - p) / self.x1);
                     let tanh_scaled_net_evap = scaled_net_evap.tanh();
 
                     let ps_div_x1 = (2. - self.production_store / self.x1) * tanh_scaled_net_evap;
