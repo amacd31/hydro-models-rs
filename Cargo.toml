@@ -1,5 +1,5 @@
 [package]
-name = "hydro-models"
+name = "hydromodels"
 version = "0.1.0"
 authors = ["Andrew MacDonald <andrew@maccas.net>"]
 
