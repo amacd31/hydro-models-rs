@@ -87,13 +87,13 @@ pub mod hydromodels {
             let mut uh2_ordinates = vec![0.; n_uh2 as usize];
 
             for t in 1..(n_uh1 + 1) {
-                uh1_ordinates[(t - 1) as usize] = s_curves1(t as f64, self.x4) -
-                    s_curves1(t as f64 - 1., self.x4);
+                uh1_ordinates[(t - 1) as usize] = s_curves1(f64::from(t), self.x4) -
+                    s_curves1(f64::from(t) - 1., self.x4);
             }
 
             for t in 1..(n_uh2 + 1) {
-                uh2_ordinates[(t - 1) as usize] = s_curves2(t as f64, self.x4) -
-                    s_curves2(t as f64 - 1., self.x4);
+                uh2_ordinates[(t - 1) as usize] = s_curves2(f64::from(t), self.x4) -
+                    s_curves2(f64::from(t) - 1., self.x4);
             }
 
             for (p, e) in precip.iter().zip(potential_evap) {
