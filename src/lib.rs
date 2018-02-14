@@ -126,7 +126,7 @@ pub mod hydromodels {
 
                 let percolation = self.production_store /
                     (1. + (self.production_store / 2.25 / self.x1).powf(4.)).powf(0.25);
-                routing_pattern = routing_pattern + (self.production_store - percolation);
+                routing_pattern += self.production_store - percolation;
 
                 self.production_store = percolation;
 
