@@ -167,7 +167,7 @@ pub mod hydromodels {
 
         pub fn init(
             &mut self,
-            params: HashMap<&str, f64>,
+            params: &HashMap<&str, f64>,
             production_store: Option<f64>,
             routing_store: Option<f64>,
             unit_hydrographs: Option<HashMap<&str, Vec<f64>>>,
@@ -229,7 +229,7 @@ mod tests {
 
         let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
 
-        gr4j.init(params, None, None, None);
+        gr4j.init(&params, None, None, None);
         gr4j.run(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5]);
 
         assert_eq!(gr4j.qsim, expected);
@@ -254,7 +254,7 @@ mod tests {
 
         let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
 
-        gr4j.init(params, None, None, None);
+        gr4j.init(&params, None, None, None);
         gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
         assert_eq!(gr4j.qsim, expected);
@@ -283,7 +283,7 @@ mod tests {
 
         let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
 
-        gr4j.init(params, Some(10.), None, None);
+        gr4j.init(&params, Some(10.), None, None);
         gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
         assert_eq!(gr4j.qsim, expected);
@@ -324,7 +324,7 @@ mod tests {
 
         let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
 
-        gr4j.init(params, Some(10.), None, Some(unit_hydrographs));
+        gr4j.init(&params, Some(10.), None, Some(unit_hydrographs));
         gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
         assert_eq!(gr4j.qsim, expected);
@@ -356,7 +356,7 @@ mod tests {
 
         let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
 
-        gr4j.init(params, Some(10.), None, Some(unit_hydrographs));
+        gr4j.init(&params, Some(10.), None, Some(unit_hydrographs));
         gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
         assert_eq!(gr4j.qsim, expected);
