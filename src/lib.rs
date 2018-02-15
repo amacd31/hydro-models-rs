@@ -5,14 +5,11 @@ pub mod hydromodels {
     Unit hydrograph ordinates for UH1 derived from S-curves.
     */
     pub(crate) fn s_curves1(t: f64, x4: f64) -> f64 {
-
-        if t <= 0.0 {
-            return 0.0;
-        } else if t < x4 {
-            return (t / x4).powf(2.5);
-        } else {
+        match t {
+            t if t <= 0. => 0.,
+            t if t < x4 => (t / x4).powf(2.5),
             // t >= x4
-            return 1.0;
+            _ => 1.
         }
     }
 
@@ -20,16 +17,12 @@ pub mod hydromodels {
     Unit hydrograph ordinates for UH2 derived from S-curves.
     */
     pub(crate) fn s_curves2(t: f64, x4: f64) -> f64 {
-
-        if t <= 0.0 {
-            return 0.0;
-        } else if t < x4 {
-            return 0.5 * (t / x4).powf(2.5);
-        } else if t < 2.0 * x4 {
-            return 1.0 - 0.5 * (2.0 - t / x4).powf(2.5);
-        } else {
-            // t >= x4
-            return 1.0;
+        match t {
+            t if t <= 0. => 0.,
+            t if t < x4 => 0.5 * (t / x4).powf(2.5),
+            t if t < 2. * x4 => 1. - 0.5 * (2. - t / x4).powf(2.5),
+            // t >= 2*x4
+            _ => 1.
         }
     }
 
