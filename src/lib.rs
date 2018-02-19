@@ -27,7 +27,6 @@ pub mod hydromodels {
     }
 
     pub struct GR4JModel {
-        pub qsim: Vec<f64>,
         pub x1: f64,
         pub x2: f64,
         pub x3: f64,
@@ -41,7 +40,6 @@ pub mod hydromodels {
     impl Default for GR4JModel {
         fn default() -> GR4JModel {
             GR4JModel {
-                qsim: Vec::new(),
                 // Default params are the median values from
                 // Perrin, Charles, Claude Michel, and Vazken Andréassian.
                 // "Improvement of a parsimonious model for streamflow simulation."
@@ -71,7 +69,9 @@ pub mod hydromodels {
             :param precip: Catchment average rainfall.
             :param potential_evap: Catchment average potential evapotranspiration.
         */
-        pub fn run(&mut self, precip: &[f64], potential_evap: &[f64]) {
+        pub fn run(&mut self, precip: &[f64], potential_evap: &[f64]) -> Vec<f64> {
+
+            let mut qsim: Vec<f64> = Vec::with_capacity(precip.len());
 
             let n_uh1 = self.x4.ceil() as i32;
             let n_uh2 = (2.0 * self.x4).ceil() as i32;
@@ -154,8 +154,9 @@ pub mod hydromodels {
                 let qd = (0.0f64).max(self.uh2[0] * 0.1 + groundwater_exchange);
                 let q = qr + qd;
 
-                self.qsim.push(q);
+                qsim.push(q);
             }
+            qsim
         }
 
         pub fn init(
@@ -223,9 +224,9 @@ mod tests {
         let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
 
         gr4j.init(&params, None, None, None);
-        gr4j.run(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5]);
+        let qsim = gr4j.run(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5]);
 
-        assert_eq!(gr4j.qsim, expected);
+        assert_eq!(qsim, expected);
     }
 
     #[test]
@@ -248,9 +249,9 @@ mod tests {
         let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
 
         gr4j.init(&params, None, None, None);
-        gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
+        let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
-        assert_eq!(gr4j.qsim, expected);
+        assert_eq!(qsim, expected);
     }
 
     #[test]
@@ -277,9 +278,9 @@ mod tests {
         let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
 
         gr4j.init(&params, Some(10.), None, None);
-        gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
+        let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
-        assert_eq!(gr4j.qsim, expected);
+        assert_eq!(qsim, expected);
     }
 
     #[test]
@@ -318,9 +319,9 @@ mod tests {
         let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
 
         gr4j.init(&params, Some(10.), None, Some(unit_hydrographs));
-        gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
+        let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
-        assert_eq!(gr4j.qsim, expected);
+        assert_eq!(qsim, expected);
     }
 
     #[test]
@@ -350,9 +351,9 @@ mod tests {
         let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
 
         gr4j.init(&params, Some(10.), None, Some(unit_hydrographs));
-        gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
+        let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
-        assert_eq!(gr4j.qsim, expected);
+        assert_eq!(qsim, expected);
     }
 
     #[test]
