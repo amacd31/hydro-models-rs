@@ -69,6 +69,26 @@ pub mod hydromodels {
     }
 
     impl GR4JModel {
+        pub fn create(params: GR4JParams) -> GR4JModel {
+            let n_uh1 = params.x4.ceil() as usize;
+            let n_uh2 = (2.0 * params.x4).ceil() as usize;
+
+            // Default unit hydrographs to all zeroes when initializing
+            let uh1 = vec![0.; n_uh1];
+            let uh2 = vec![0.; n_uh2];
+
+            GR4JModel {
+                params: params,
+
+                // Completely dry initial catchment
+                production_store: 0.,
+                routing_store: 0.,
+
+                uh1: uh1,
+                uh2: uh2,
+            }
+        }
+
         /*
             Generate simulated streamflow for given rainfall and potential evaporation.
 
@@ -211,6 +231,30 @@ pub mod hydromodels {
 mod tests {
     use hydromodels;
     use std::collections::HashMap;
+
+    #[test]
+    fn gr4j_create_test() {
+        let params = hydromodels::GR4JParams {
+            x1: 10.,
+            x2: 5.,
+            x3: 4.,
+            x4: 1.,
+        };
+
+        let expected = vec![
+            0.13030636843636356,
+            0.7348755690383941,
+            3.8482364547176102,
+            11.246676991863168,
+            13.90322269162079,
+        ];
+
+        let mut gr4j = hydromodels::GR4JModel::create(params);
+
+        let qsim = gr4j.run(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5]);
+
+        assert_eq!(qsim, expected);
+    }
 
     #[test]
     fn gr4j_simple_test() {
