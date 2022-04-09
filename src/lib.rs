@@ -26,6 +26,7 @@ pub mod hydromodels {
         }
     }
 
+    #[repr(C)]
     pub struct GR4JModel {
         pub x1: f64,
         pub x2: f64,
