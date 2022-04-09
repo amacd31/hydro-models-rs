@@ -9,7 +9,7 @@ pub mod hydromodels {
             t if t <= 0. => 0.,
             t if t < x4 => (t / x4).powf(2.5),
             // t >= x4
-            _ => 1.
+            _ => 1.,
         }
     }
 
@@ -22,7 +22,7 @@ pub mod hydromodels {
             t if t < x4 => 0.5 * (t / x4).powf(2.5),
             t if t < 2. * x4 => 1. - 0.5 * (2. - t / x4).powf(2.5),
             // t >= 2*x4
-            _ => 1.
+            _ => 1.,
         }
     }
 
@@ -70,7 +70,6 @@ pub mod hydromodels {
             :param potential_evap: Catchment average potential evapotranspiration.
         */
         pub fn run(&mut self, precip: &[f64], potential_evap: &[f64]) -> Vec<f64> {
-
             let mut qsim: Vec<f64> = Vec::with_capacity(precip.len());
 
             let n_uh1 = self.x4.ceil() as i32;
@@ -80,13 +79,13 @@ pub mod hydromodels {
             let mut uh2_ordinates = vec![0.; n_uh2 as usize];
 
             for t in 1..(n_uh1 + 1) {
-                uh1_ordinates[(t - 1) as usize] = s_curves1(f64::from(t), self.x4) -
-                    s_curves1(f64::from(t) - 1., self.x4);
+                uh1_ordinates[(t - 1) as usize] =
+                    s_curves1(f64::from(t), self.x4) - s_curves1(f64::from(t) - 1., self.x4);
             }
 
             for t in 1..(n_uh2 + 1) {
-                uh2_ordinates[(t - 1) as usize] = s_curves2(f64::from(t), self.x4) -
-                    s_curves2(f64::from(t) - 1., self.x4);
+                uh2_ordinates[(t - 1) as usize] =
+                    s_curves2(f64::from(t), self.x4) - s_curves2(f64::from(t) - 1., self.x4);
             }
 
             for (p, e) in precip.iter().zip(potential_evap) {
@@ -97,10 +96,10 @@ pub mod hydromodels {
                     net_evap = 0.;
                     let scaled_net_precip = (13.0f64).min((p - e) / self.x1);
                     let tanh_scaled_net_precip = scaled_net_precip.tanh();
-                    reservoir_production = (self.x1 *
-                                                (1. - (self.production_store / self.x1).powf(2.)) *
-                                                tanh_scaled_net_precip) /
-                        (1. + self.production_store / self.x1 * tanh_scaled_net_precip);
+                    reservoir_production = (self.x1
+                        * (1. - (self.production_store / self.x1).powf(2.))
+                        * tanh_scaled_net_precip)
+                        / (1. + self.production_store / self.x1 * tanh_scaled_net_precip);
 
                     routing_pattern = p - e - reservoir_production;
                 } else {
@@ -108,8 +107,8 @@ pub mod hydromodels {
                     let tanh_scaled_net_evap = scaled_net_evap.tanh();
 
                     let ps_div_x1 = (2. - self.production_store / self.x1) * tanh_scaled_net_evap;
-                    net_evap = self.production_store * (ps_div_x1) /
-                        (1. + (1. - self.production_store / self.x1) * tanh_scaled_net_evap);
+                    net_evap = self.production_store * (ps_div_x1)
+                        / (1. + (1. - self.production_store / self.x1) * tanh_scaled_net_evap);
 
                     reservoir_production = 0.;
                     routing_pattern = 0.;
@@ -117,8 +116,8 @@ pub mod hydromodels {
 
                 self.production_store = self.production_store - net_evap + reservoir_production;
 
-                let percolation = self.production_store /
-                    (1. + (self.production_store / 2.25 / self.x1).powf(4.)).powf(0.25);
+                let percolation = self.production_store
+                    / (1. + (self.production_store / 2.25 / self.x1).powf(4.)).powf(0.25);
                 routing_pattern += self.production_store - percolation;
 
                 self.production_store = percolation;
@@ -142,13 +141,11 @@ pub mod hydromodels {
                 }
 
                 let groundwater_exchange = self.x2 * (self.routing_store / self.x3).powf(3.5);
-                self.routing_store = (0.0f64).max(
-                    self.routing_store + self.uh1[0] * 0.9 +
-                        groundwater_exchange,
-                );
+                self.routing_store =
+                    (0.0f64).max(self.routing_store + self.uh1[0] * 0.9 + groundwater_exchange);
 
-                let r2 = self.routing_store /
-                    (1. + (self.routing_store / self.x3).powf(4.)).powf(0.25);
+                let r2 =
+                    self.routing_store / (1. + (self.routing_store / self.x3).powf(4.)).powf(0.25);
                 let qr = self.routing_store - r2;
                 self.routing_store = r2;
                 let qd = (0.0f64).max(self.uh2[0] * 0.1 + groundwater_exchange);
@@ -201,8 +198,8 @@ pub mod hydromodels {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use hydromodels;
+    use std::collections::HashMap;
 
     #[test]
     fn gr4j_simple_test() {
@@ -221,7 +218,9 @@ mod tests {
             13.90322269162079,
         ];
 
-        let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
+        let mut gr4j = hydromodels::GR4JModel {
+            ..Default::default()
+        };
 
         gr4j.init(&params, None, None, None);
         let qsim = gr4j.run(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5]);
@@ -246,7 +245,9 @@ mod tests {
             20.992238476264593,
         ];
 
-        let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
+        let mut gr4j = hydromodels::GR4JModel {
+            ..Default::default()
+        };
 
         gr4j.init(&params, None, None, None);
         let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
@@ -275,7 +276,9 @@ mod tests {
             21.019904684254975,
         ];
 
-        let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
+        let mut gr4j = hydromodels::GR4JModel {
+            ..Default::default()
+        };
 
         gr4j.init(&params, Some(10.), None, None);
         let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
@@ -316,7 +319,9 @@ mod tests {
             ],
         );
 
-        let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
+        let mut gr4j = hydromodels::GR4JModel {
+            ..Default::default()
+        };
 
         gr4j.init(&params, Some(10.), None, Some(unit_hydrographs));
         let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
@@ -348,7 +353,9 @@ mod tests {
         let mut unit_hydrographs = HashMap::new();
         unit_hydrographs.insert("uh1", vec![111.13119599074196, 3.7349877368581]);
 
-        let mut gr4j = hydromodels::GR4JModel { ..Default::default() };
+        let mut gr4j = hydromodels::GR4JModel {
+            ..Default::default()
+        };
 
         gr4j.init(&params, Some(10.), None, Some(unit_hydrographs));
         let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
