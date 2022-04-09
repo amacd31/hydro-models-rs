@@ -27,6 +27,81 @@ pub mod hydromodels {
     }
 
     #[repr(C)]
+    pub struct GR2MParams {
+        pub x1: f64,
+        pub x2: f64,
+    }
+
+    #[repr(C)]
+    pub struct GR2MModel {
+        pub params: GR2MParams,
+        pub production_store: f64,
+        pub routing_store: f64,
+    }
+
+    impl GR2MModel {
+        pub fn create(params: GR2MParams) -> GR2MModel {
+            GR2MModel {
+                params: params,
+
+                // Completely dry initial catchment
+                production_store: 0.,
+                routing_store: 0.,
+            }
+        }
+
+        /*
+            Generate monthly simulated streamflow for given rainfall and potential evaporation.
+
+            :param precip: Catchment average rainfall.
+            :param potential_evap: Catchment average potential evapotranspiration.
+
+            References:
+                Mouelhi, S., Michel, C., Perrin, C., & Andréassian, V. (2006).
+                    Stepwise development of a two-parameter monthly water
+                    balance model. Journal of Hydrology, 318(1-4), 200-214.
+                    http://doi.org/10.1016/j.jhydrol.2005.06.014
+
+                Operation of GR2M:
+                    http://webgr.irstea.fr/modeles/mensuel-gr2m/fonctionnement-gr2m/?lang=en
+        */
+        pub fn run(&mut self, precip: &[f64], potential_evap: &[f64]) -> Vec<f64> {
+            let mut qsim: Vec<f64> = Vec::with_capacity(precip.len());
+
+            let x1 = self.params.x1;
+            let x2 = self.params.x2;
+
+            for (p, e) in precip.iter().zip(potential_evap) {
+                let phi = (p / x1).tanh();
+                let psi = (e / x1).tanh();
+
+                let s1 =
+                    (self.production_store + x1 * phi) / (1. + phi * (self.production_store / x1));
+
+                let p1 = p + self.production_store - s1;
+
+                let s2 = s1 * (1. - psi) / (1. + psi * (1. - s1 / x1));
+
+                self.production_store = s2 / (1. + (s2 / x1).powf(3.)).powf(1. / 3.);
+
+                let p2 = s2 - self.production_store;
+
+                let p3 = p1 + p2;
+
+                let r1 = self.routing_store + p3;
+
+                let r2 = x2 * r1;
+
+                let q = r2.powf(2.) / (r2 + 60.);
+                qsim.push(q);
+
+                self.routing_store = r2 - q;
+            }
+            qsim
+        }
+    }
+
+    #[repr(C)]
     pub struct GR4JParams {
         pub x1: f64,
         pub x2: f64,
@@ -253,6 +328,29 @@ mod tests {
 
         let qsim = gr4j.run(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5]);
 
+        assert_eq!(qsim, expected);
+    }
+
+    #[test]
+    fn gr2m_test() {
+        let params = hydromodels::GR2MParams { x1: 1., x2: 1. };
+
+        let expected = vec![
+            0.0009450053530675536,
+            0.0327630181266177,
+            0.2055971698811445,
+            0.6632149029988136,
+            0.991927371887451,
+            1.0533436405957102,
+            0.9029856114321761,
+        ];
+
+        let mut gr2m = hydromodels::GR2MModel::create(params);
+
+        let qsim = gr2m.run(&[1., 2., 3., 4., 3., 2., 1.], &[1., 1., 1., 1., 1., 1., 1.]);
+
+        assert_eq!(gr2m.production_store, 0.1792526700466929);
+        assert_eq!(gr2m.routing_store, 6.922989036389427);
         assert_eq!(qsim, expected);
     }
 
