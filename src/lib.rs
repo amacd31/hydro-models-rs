@@ -1,19 +1,16 @@
 mod models;
 
-pub mod hydromodels {
-    pub use models::gr2m::{GR2MParams, GR2MModel};
-    pub use models::gr4j::{GR4JParams, GR4JModel};
-}
+pub use models::gr2m::{GR2MParams, GR2MModel};
+pub use models::gr4j::{GR4JParams, GR4JModel};
 
 #[cfg(test)]
 mod tests {
-    use hydromodels;
     use models::gr4j;
     use std::collections::HashMap;
 
     #[test]
     fn gr4j_create_test() {
-        let params = hydromodels::GR4JParams {
+        let params = crate::GR4JParams {
             x1: 10.,
             x2: 5.,
             x3: 4.,
@@ -28,7 +25,7 @@ mod tests {
             13.90322269162079,
         ];
 
-        let mut gr4j = hydromodels::GR4JModel::create(params);
+        let mut gr4j = crate::GR4JModel::create(params);
 
         let qsim = gr4j.run(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5]);
 
@@ -52,7 +49,7 @@ mod tests {
             13.90322269162079,
         ];
 
-        let mut gr4j = hydromodels::GR4JModel {
+        let mut gr4j = crate::GR4JModel {
             ..Default::default()
         };
 
@@ -79,7 +76,7 @@ mod tests {
             20.992238476264593,
         ];
 
-        let mut gr4j = hydromodels::GR4JModel {
+        let mut gr4j = crate::GR4JModel {
             ..Default::default()
         };
 
@@ -110,7 +107,7 @@ mod tests {
             21.019904684254975,
         ];
 
-        let mut gr4j = hydromodels::GR4JModel {
+        let mut gr4j = crate::GR4JModel {
             ..Default::default()
         };
 
@@ -153,7 +150,7 @@ mod tests {
             ],
         );
 
-        let mut gr4j = hydromodels::GR4JModel {
+        let mut gr4j = crate::GR4JModel {
             ..Default::default()
         };
 
@@ -187,7 +184,7 @@ mod tests {
         let mut unit_hydrographs = HashMap::new();
         unit_hydrographs.insert("uh1", vec![111.13119599074196, 3.7349877368581]);
 
-        let mut gr4j = hydromodels::GR4JModel {
+        let mut gr4j = crate::GR4JModel {
             ..Default::default()
         };
 
@@ -219,7 +216,7 @@ mod tests {
 
     #[test]
     fn gr2m_test() {
-        let params = hydromodels::GR2MParams { x1: 1., x2: 1. };
+        let params = crate::GR2MParams { x1: 1., x2: 1. };
 
         let expected = vec![
             0.0009450053530675536,
@@ -231,7 +228,7 @@ mod tests {
             0.9029856114321761,
         ];
 
-        let mut gr2m = hydromodels::GR2MModel::create(params);
+        let mut gr2m = crate::GR2MModel::create(params);
 
         let qsim = gr2m.run(&[1., 2., 3., 4., 3., 2., 1.], &[1., 1., 1., 1., 1., 1., 1.]);
 
