@@ -1,0 +1,13 @@
+[build-system]
+requires = ["maturin>=0.12,<0.13", "cffi"]
+build-backend = "maturin"
+
+[project]
+name = "hydromodels"
+requires-python = ">=3.6"
+dependencies = ["cffi"]
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]

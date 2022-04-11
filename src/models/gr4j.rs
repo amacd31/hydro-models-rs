@@ -1,5 +1,9 @@
 use std::collections::HashMap;
 
+#[cfg(feature = "python")]
+use pyo3::prelude::*;
+
+
 /*
 Unit hydrograph ordinates for UH1 derived from S-curves.
 */
@@ -25,6 +29,8 @@ pub(crate) fn s_curves2(t: f64, x4: f64) -> f64 {
     }
 }
 
+#[cfg_attr(feature = "python", pyclass)]
+#[derive(Clone)]
 #[repr(C)]
 pub struct GR4JParams {
     pub x1: f64,
@@ -33,6 +39,7 @@ pub struct GR4JParams {
     pub x4: f64,
 }
 
+#[cfg_attr(feature = "python", pyclass)]
 #[repr(C)]
 pub struct GR4JModel {
     pub params: GR4JParams,

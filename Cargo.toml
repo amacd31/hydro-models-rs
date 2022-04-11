@@ -5,4 +5,11 @@ authors = ["Andrew MacDonald <andrew@maccas.net>"]
 edition = "2021"
 
 [lib]
-crate-type = ["dylib", "lib"]
+crate-type = ["cdylib", "lib"]
+
+[features]
+python = ["pyo3", "numpy"]
+
+[dependencies]
+pyo3 = { version = "0.16.1", features = ["extension-module"], optional = true }
+numpy = { version = "0.16", optional = true }

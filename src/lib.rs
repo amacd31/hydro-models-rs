@@ -3,6 +3,13 @@ mod models;
 pub use models::gr2m::{GR2MParams, GR2MModel};
 pub use models::gr4j::{GR4JParams, GR4JModel};
 
+#[cfg(feature = "python")]
+#[path = ""]
+mod python_features {
+    mod python;
+    pub use python::hydromodels;
+}
+
 #[cfg(test)]
 mod tests {
     use crate::models::gr4j;
