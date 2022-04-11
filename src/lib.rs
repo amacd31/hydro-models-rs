@@ -5,7 +5,7 @@ pub use models::gr4j::{GR4JParams, GR4JModel};
 
 #[cfg(test)]
 mod tests {
-    use models::gr4j;
+    use crate::models::gr4j;
     use std::collections::HashMap;
 
     #[test]
