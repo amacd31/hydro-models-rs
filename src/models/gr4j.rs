@@ -3,7 +3,6 @@ use std::collections::HashMap;
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 
-
 /*
 Unit hydrograph ordinates for UH1 derived from S-curves.
 */
@@ -143,8 +142,7 @@ impl GR4JModel {
                 let ps_div_x1 =
                     (2. - self.production_store / self.params.x1) * tanh_scaled_net_evap;
                 net_evap = self.production_store * (ps_div_x1)
-                    / (1.
-                        + (1. - self.production_store / self.params.x1) * tanh_scaled_net_evap);
+                    / (1. + (1. - self.production_store / self.params.x1) * tanh_scaled_net_evap);
 
                 reservoir_production = 0.;
                 routing_pattern = 0.;

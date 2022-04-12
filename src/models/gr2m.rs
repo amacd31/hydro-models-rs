@@ -47,8 +47,7 @@ impl GR2MModel {
             let phi = (p / x1).tanh();
             let psi = (e / x1).tanh();
 
-            let s1 =
-                (self.production_store + x1 * phi) / (1. + phi * (self.production_store / x1));
+            let s1 = (self.production_store + x1 * phi) / (1. + phi * (self.production_store / x1));
 
             let p1 = p + self.production_store - s1;
 

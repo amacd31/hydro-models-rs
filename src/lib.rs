@@ -1,7 +1,7 @@
 mod models;
 
-pub use models::gr2m::{GR2MParams, GR2MModel};
-pub use models::gr4j::{GR4JParams, GR4JModel};
+pub use models::gr2m::{GR2MModel, GR2MParams};
+pub use models::gr4j::{GR4JModel, GR4JParams};
 
 #[cfg(feature = "python")]
 #[path = ""]
