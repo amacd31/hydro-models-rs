@@ -95,14 +95,14 @@ impl GR4JModel {
         let uh2 = vec![0.; n_uh2];
 
         GR4JModel {
-            params: params,
+            params,
 
             // Completely dry initial catchment
             production_store: 0.,
             routing_store: 0.,
 
-            uh1: uh1,
-            uh2: uh2,
+            uh1,
+            uh2,
         }
     }
 

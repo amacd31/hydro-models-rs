@@ -14,7 +14,7 @@ pub struct GR2MModel {
 impl GR2MModel {
     pub fn create(params: GR2MParams) -> GR2MModel {
         GR2MModel {
-            params: params,
+            params,
 
             // Completely dry initial catchment
             production_store: 0.,
