@@ -38,6 +38,18 @@ pub struct GR4JParams {
     pub x4: f64,
 }
 
+impl GR4JParams {
+    pub fn new(x1: f64, x2: f64, x3: f64, x4: f64) -> Result<GR4JParams, &'static str> {
+        if x4 <= 0. {
+            return Err("X4 must be greater than zero.");
+        }
+        if x4 > 40. {
+            return Err("X4 must be less than or equal to 40.");
+        }
+        Ok(GR4JParams { x1, x2, x3, x4 })
+    }
+}
+
 #[cfg_attr(feature = "python", pyclass)]
 #[repr(C)]
 pub struct GR4JModel {

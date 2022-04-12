@@ -1,4 +1,5 @@
 use numpy::{IntoPyArray, PyArray1, PyReadonlyArrayDyn};
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 use crate::models::gr4j::{GR4JModel, GR4JParams};
@@ -13,8 +14,11 @@ pub fn hydromodels(_py: Python, m: &PyModule) -> PyResult<()> {
 #[pymethods]
 impl GR4JParams {
     #[new]
-    fn new(x1: f64, x2: f64, x3: f64, x4: f64) -> Self {
-        GR4JParams { x1, x2, x3, x4 }
+    fn py_new(x1: f64, x2: f64, x3: f64, x4: f64) -> PyResult<Self> {
+        match GR4JParams::new(x1, x2, x3, x4) {
+            Ok(params) => Ok(params),
+            Err(e) => Err(PyValueError::new_err(e)),
+        }
     }
 }
 
