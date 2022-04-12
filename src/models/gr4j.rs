@@ -168,7 +168,7 @@ impl GR4JModel {
 
             self.production_store = percolation;
 
-            for i in 0..(self.uh1.len() - 1) {
+            for (i, _) in uh1_ordinates.iter().enumerate().take(self.uh1.len() - 1) {
                 self.uh1[i] = self.uh1[i + 1] + uh1_ordinates[i] * routing_pattern;
             }
             if let (Some(last_uh1), Some(last_ordinate)) =
@@ -177,7 +177,7 @@ impl GR4JModel {
                 *last_uh1 = *last_ordinate * routing_pattern;
             }
 
-            for j in 0..(self.uh2.len() - 1) {
+            for (j, _) in uh2_ordinates.iter().enumerate().take(self.uh2.len() - 1) {
                 self.uh2[j] = self.uh2[j + 1] + uh2_ordinates[j] * routing_pattern
             }
             if let (Some(last_uh2), Some(last_ordinate)) =
