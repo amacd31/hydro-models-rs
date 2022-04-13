@@ -9,7 +9,7 @@ Unit hydrograph ordinates for UH1 derived from S-curves.
 pub(crate) fn s_curves1(t: f64, x4: f64) -> f64 {
     match t {
         t if t <= 0. => 0.,
-        t if t < x4 => (t / x4).powf(2.5),
+        t if t < x4 => (t / x4).powi(5).sqrt(),
         // t >= x4
         _ => 1.,
     }
@@ -21,8 +21,8 @@ Unit hydrograph ordinates for UH2 derived from S-curves.
 pub(crate) fn s_curves2(t: f64, x4: f64) -> f64 {
     match t {
         t if t <= 0. => 0.,
-        t if t < x4 => 0.5 * (t / x4).powf(2.5),
-        t if t < 2. * x4 => 1. - 0.5 * (2. - t / x4).powf(2.5),
+        t if t < x4 => 0.5 * (t / x4).powi(5).sqrt(),
+        t if t < 2. * x4 => 1. - 0.5 * (2. - t / x4).powi(5).sqrt(),
         // t >= 2*x4
         _ => 1.,
     }
@@ -142,7 +142,7 @@ impl GR4JModel {
                 let scaled_net_precip = (13.0f64).min((p - e) / self.params.x1);
                 let tanh_scaled_net_precip = scaled_net_precip.tanh();
                 reservoir_production = (self.params.x1
-                    * (1. - (self.production_store / self.params.x1).powf(2.))
+                    * (1. - (self.production_store / self.params.x1).powi(2))
                     * tanh_scaled_net_precip)
                     / (1. + self.production_store / self.params.x1 * tanh_scaled_net_precip);
 
@@ -163,7 +163,9 @@ impl GR4JModel {
             self.production_store = self.production_store - net_evap + reservoir_production;
 
             let percolation = self.production_store
-                / (1. + (self.production_store / 2.25 / self.params.x1).powf(4.)).powf(0.25);
+                / (1. + (self.production_store / 2.25 / self.params.x1).powi(4))
+                    .sqrt()
+                    .sqrt();
             routing_pattern += self.production_store - percolation;
 
             self.production_store = percolation;
@@ -187,12 +189,14 @@ impl GR4JModel {
             }
 
             let groundwater_exchange =
-                self.params.x2 * (self.routing_store / self.params.x3).powf(3.5);
+                self.params.x2 * (self.routing_store / self.params.x3).powi(7).sqrt();
             self.routing_store =
                 (0.0f64).max(self.routing_store + self.uh1[0] * 0.9 + groundwater_exchange);
 
             let r2 = self.routing_store
-                / (1. + (self.routing_store / self.params.x3).powf(4.)).powf(0.25);
+                / (1. + (self.routing_store / self.params.x3).powi(4))
+                    .sqrt()
+                    .sqrt();
             let qr = self.routing_store - r2;
             self.routing_store = r2;
             let qd = (0.0f64).max(self.uh2[0] * 0.1 + groundwater_exchange);
