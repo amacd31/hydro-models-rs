@@ -15,6 +15,17 @@ mod tests {
     use crate::models::gr4j;
     use std::collections::HashMap;
 
+    fn assert_almost_eq(left: &[f64], right: &[f64]) {
+        let offset = f64::EPSILON + 0.0000000000001;
+        if !left
+            .iter()
+            .zip(right)
+            .all(|(a, b)| f64::abs(a - b) < offset)
+        {
+            panic!();
+        }
+    }
+
     #[test]
     fn gr4j_create_test() {
         let params = crate::GR4JParams {
@@ -36,7 +47,7 @@ mod tests {
 
         let qsim = gr4j.run(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5]);
 
-        assert_eq!(qsim, expected);
+        assert_almost_eq(&qsim, &expected);
     }
 
     #[test]
@@ -63,7 +74,7 @@ mod tests {
         gr4j.init(&params, None, None, None);
         let qsim = gr4j.run(&[10., 2., 3., 4., 5.], &[0.5, 0.5, 0.5, 0.5, 0.5]);
 
-        assert_eq!(qsim, expected);
+        assert_almost_eq(&qsim, &expected);
     }
 
     #[test]
@@ -90,7 +101,7 @@ mod tests {
         gr4j.init(&params, None, None, None);
         let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
-        assert_eq!(qsim, expected);
+        assert_almost_eq(&qsim, &expected);
     }
 
     #[test]
@@ -121,7 +132,7 @@ mod tests {
         gr4j.init(&params, Some(10.), None, None);
         let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
-        assert_eq!(qsim, expected);
+        assert_almost_eq(&qsim, &expected);
     }
 
     #[test]
@@ -164,7 +175,7 @@ mod tests {
         gr4j.init(&params, Some(10.), None, Some(unit_hydrographs));
         let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
-        assert_eq!(qsim, expected);
+        assert_almost_eq(&qsim, &expected);
     }
 
     #[test]
@@ -198,7 +209,7 @@ mod tests {
         gr4j.init(&params, Some(10.), None, Some(unit_hydrographs));
         let qsim = gr4j.run(&[10., 2., 3., 150., 5.], &[0.5, 14., 0.5, 10., 0.5]);
 
-        assert_eq!(qsim, expected);
+        assert_almost_eq(&qsim, &expected);
     }
 
     #[test]
@@ -241,6 +252,6 @@ mod tests {
 
         assert_eq!(gr2m.production_store, 0.1792526700466929);
         assert_eq!(gr2m.routing_store, 6.922989036389427);
-        assert_eq!(qsim, expected);
+        assert_almost_eq(&qsim, &expected);
     }
 }
