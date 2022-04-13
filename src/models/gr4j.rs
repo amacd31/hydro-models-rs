@@ -133,28 +133,31 @@ impl GR4JModel {
                 - s_curves2(f64::from(t) - 1., self.params.x4);
         }
 
+        let x1_factor = 1. / self.params.x1;
+        let x3_factor = 1. / self.params.x3;
+        let percolation_factor = 1. / 2.25;
+
         for (p, e) in precip.iter().zip(potential_evap) {
             let net_evap;
             let mut routing_pattern;
             let reservoir_production;
             if p > e {
                 net_evap = 0.;
-                let scaled_net_precip = (13.0f64).min((p - e) / self.params.x1);
+                let scaled_net_precip = (13.0f64).min((p - e) * x1_factor);
                 let tanh_scaled_net_precip = scaled_net_precip.tanh();
                 reservoir_production = (self.params.x1
-                    * (1. - (self.production_store / self.params.x1).powi(2))
+                    * (1. - (self.production_store * x1_factor).powi(2))
                     * tanh_scaled_net_precip)
-                    / (1. + self.production_store / self.params.x1 * tanh_scaled_net_precip);
+                    / (1. + self.production_store * x1_factor * tanh_scaled_net_precip);
 
                 routing_pattern = p - e - reservoir_production;
             } else {
-                let scaled_net_evap = (13.0f64).min((e - p) / self.params.x1);
+                let scaled_net_evap = (13.0f64).min((e - p) * x1_factor);
                 let tanh_scaled_net_evap = scaled_net_evap.tanh();
 
-                let ps_div_x1 =
-                    (2. - self.production_store / self.params.x1) * tanh_scaled_net_evap;
+                let ps_div_x1 = (2. - self.production_store * x1_factor) * tanh_scaled_net_evap;
                 net_evap = self.production_store * (ps_div_x1)
-                    / (1. + (1. - self.production_store / self.params.x1) * tanh_scaled_net_evap);
+                    / (1. + (1. - self.production_store * x1_factor) * tanh_scaled_net_evap);
 
                 reservoir_production = 0.;
                 routing_pattern = 0.;
@@ -163,7 +166,7 @@ impl GR4JModel {
             self.production_store = self.production_store - net_evap + reservoir_production;
 
             let percolation = self.production_store
-                / (1. + (self.production_store / 2.25 / self.params.x1).powi(4))
+                / (1. + (self.production_store * percolation_factor * x1_factor).powi(4))
                     .sqrt()
                     .sqrt();
             routing_pattern += self.production_store - percolation;
@@ -189,12 +192,12 @@ impl GR4JModel {
             }
 
             let groundwater_exchange =
-                self.params.x2 * (self.routing_store / self.params.x3).powi(7).sqrt();
+                self.params.x2 * (self.routing_store * x3_factor).powi(7).sqrt();
             self.routing_store =
                 (0.0f64).max(self.routing_store + self.uh1[0] * 0.9 + groundwater_exchange);
 
             let r2 = self.routing_store
-                / (1. + (self.routing_store / self.params.x3).powi(4))
+                / (1. + (self.routing_store * x3_factor).powi(4))
                     .sqrt()
                     .sqrt();
             let qr = self.routing_store - r2;
